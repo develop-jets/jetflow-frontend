@@ -9,3 +9,4 @@
     ├─ lib/               # Utilities (API clients, helpers)
     ├─ styles/            # Global styles (if any extra)
     └─ types/             # TypeScript types & interfaces
+- created default landing page
