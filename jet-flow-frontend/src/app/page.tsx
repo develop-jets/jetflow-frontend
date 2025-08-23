@@ -2,14 +2,24 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import FlowLoader from "@/components/loader/FlowLoader";
 import clsx from "clsx";
 
 export default function DefaultLandingPage() {
   const [loaded, setLoaded] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
     setLoaded(true);
+    return () => clearTimeout(timer);
   }, []);
+
+  if (loading) {
+    return <FlowLoader />;
+  }
 
   const fadeInClass = loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6";
 
