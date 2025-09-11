@@ -149,7 +149,7 @@ export default function JetTakeoffLoader() {
 
       // Jet movement
       if (!liftOff) {
-        speed += 0.5;
+        speed += 0.4;
         jetX += speed;
         if (jetX > width * 0.3) liftOff = true;
       } else {

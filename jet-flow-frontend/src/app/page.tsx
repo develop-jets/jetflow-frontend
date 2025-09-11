@@ -12,7 +12,7 @@ export default function DefaultLandingPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 3000);
+    }, 2000);
     setLoaded(true);
     return () => clearTimeout(timer);
   }, []);
