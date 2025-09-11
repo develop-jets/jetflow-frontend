@@ -5,7 +5,6 @@ import { useEffect, useRef } from "react";
 export default function JetTakeoffLoader() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -25,7 +24,7 @@ export default function JetTakeoffLoader() {
     logoImg.src = "/jfo-logo.png"; // Your landing page logo
 
     // Initial positioning
-    let roadHeight = height * 0.1;
+    const roadHeight = height * 0.1;
     let jetX = width * 0.1;
     let jetY = height - roadHeight - 60;
     let liftOff = false;
@@ -35,7 +34,7 @@ export default function JetTakeoffLoader() {
     let cloudOffset = 0;
     let lightBlink = 0;
 
-    let particles: {
+    const particles: {
       x: number;
       y: number;
       size: number;
@@ -150,9 +149,9 @@ export default function JetTakeoffLoader() {
 
       // Jet movement
       if (!liftOff) {
-        speed += 0.15;
+        speed += 0.5;
         jetX += speed;
-        if (jetX > width * 0.55) liftOff = true;
+        if (jetX > width * 0.3) liftOff = true;
       } else {
         tiltAngle = Math.min(tiltAngle + 0.005, 0.25);
         jetX += speed * 0.5;
