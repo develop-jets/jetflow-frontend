@@ -4,6 +4,7 @@
 import { useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
+import type { Session } from '@supabase/supabase-js';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
@@ -12,8 +13,13 @@ export default function AuthCallbackPage() {
     async function handleCallback() {
       try {
         // allow older/newer SDKs: parse fragment if available
-        if (typeof (supabase.auth as any).getSessionFromUrl === 'function') {
-          await (supabase.auth as any).getSessionFromUrl({ storeSession: true });
+        type GetSessionFromUrlFn = (opts: { storeSession: boolean }) => Promise<{ data: { session: Session | null } | null; error: unknown }>;
+
+        const maybeGetSessionFromUrl = (supabase.auth as unknown as { getSessionFromUrl?: GetSessionFromUrlFn }).getSessionFromUrl;
+        if (typeof maybeGetSessionFromUrl === 'function') {
+        // call it and ignore return shape aside from side-effect of storing session
+        // (we don't rely on the return value here)
+        await maybeGetSessionFromUrl({ storeSession: true });
         }
 
         // get stored session

@@ -36,8 +36,9 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ ok: true, org: orgData });
-  } catch (e: any) {
-    console.error('finish-org-signup', e);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
-  }
+  } catch (err: unknown) {
+  console.error('something', err);
+  const message = err instanceof Error ? err.message : String(err);
+  return NextResponse.json({ error: message ?? 'Server error' }, { status: 500 });
+}
 }

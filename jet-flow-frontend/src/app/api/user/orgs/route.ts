@@ -18,8 +18,10 @@ export async function GET(req: Request) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
     return NextResponse.json({ orgs: data ?? [] });
-  } catch (e: any) {
-    console.error('user/orgs', e);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  // new
+  } catch (err: unknown) {
+    console.error('something', err);
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: message ?? 'Server error' }, { status: 500 });
   }
 }

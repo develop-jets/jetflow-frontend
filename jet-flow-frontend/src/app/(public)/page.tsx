@@ -1,5 +1,6 @@
 'use client';
 
+
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import FlowLoader from '@/components/loader/FlowLoader';
@@ -44,7 +45,7 @@ export default function DefaultLandingPage() {
     try {
       setBusy(true);
 
-      const { data, error } = await supabase.auth.signUp({
+      const { data: _data, error } = await supabase.auth.signUp({
         email,
         password,
         options: { data: { signup_type: 'individual' } }
@@ -53,8 +54,9 @@ export default function DefaultLandingPage() {
       if (error) throw error;
 
       router.push('/auth/check-email');
-    } catch (e: any) {
-      setError(e?.message ?? 'Signup failed');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message ?? 'Signup failed');
     } finally {
       setBusy(false);
     }
@@ -75,7 +77,7 @@ export default function DefaultLandingPage() {
     try {
       setBusy(true);
 
-      const { data, error } = await supabase.auth.signUp({
+      const { data: _data, error } = await supabase.auth.signUp({
         email,
         password,
         options: { data: { signup_type: 'organization', org_name: orgName } }
@@ -84,8 +86,9 @@ export default function DefaultLandingPage() {
       if (error) throw error;
 
       router.push('/auth/check-email');
-    } catch (e: any) {
-      setError(e?.message ?? 'Organization signup failed');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message ?? 'Organization setup failed failed');
     } finally {
       setBusy(false);
     }
@@ -101,11 +104,11 @@ export default function DefaultLandingPage() {
 
     try {
       setBusy(true);
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data: _data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
-      const session = data?.session;
-      const user = data?.user;
+      const session = _data?.session;
+      const user = _data?.user;
       if (!session || !user) {
         setError('No session returned from login.');
         return;
@@ -155,8 +158,9 @@ export default function DefaultLandingPage() {
       }
 
       router.push('/app');
-    } catch (e: any) {
-      setError(e?.message ?? 'Login failed');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message ?? 'Login failed');
     } finally {
       setBusy(false);
     }
@@ -175,8 +179,9 @@ export default function DefaultLandingPage() {
       });
       if (error) throw error;
       alert('If that account exists, a password reset email has been sent.');
-    } catch (e: any) {
-      setError(e?.message ?? 'Password reset failed');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message ?? 'Password reset failed');
     } finally {
       setBusy(false);
     }
@@ -196,8 +201,9 @@ export default function DefaultLandingPage() {
         provider: provider as any,
         options: { redirectTo: `${window.location.origin}/auth/callback` }
       });
-    } catch (e: any) {
-      setError(e?.message ?? 'SSO failed');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message ?? 'SSO Failed');
     } finally {
       setBusy(false);
     }
