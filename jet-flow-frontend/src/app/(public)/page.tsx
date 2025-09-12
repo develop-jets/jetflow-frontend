@@ -1,5 +1,5 @@
+// src/app/(public)/page.tsx
 'use client';
-
 
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
@@ -7,6 +7,9 @@ import FlowLoader from '@/components/loader/FlowLoader';
 import clsx from 'clsx';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
+import type { Session } from '@supabase/supabase-js';
+
+type GetSessionFromUrlFn = (opts: { storeSession: boolean }) => Promise<{ data: { session: Session | null } | null; error: unknown }>;
 
 export default function DefaultLandingPage() {
   const router = useRouter();
@@ -45,13 +48,14 @@ export default function DefaultLandingPage() {
     try {
       setBusy(true);
 
-      const { data: _data, error } = await supabase.auth.signUp({
+      // signUp shape for supabase-js v2: single object with options.data
+      const { data: _data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: { data: { signup_type: 'individual' } }
       });
 
-      if (error) throw error;
+      if (signUpError) throw signUpError;
 
       router.push('/auth/check-email');
     } catch (err: unknown) {
@@ -88,7 +92,7 @@ export default function DefaultLandingPage() {
       router.push('/auth/check-email');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      setError(message ?? 'Organization setup failed failed');
+      setError(message ?? 'Organization signup failed');
     } finally {
       setBusy(false);
     }
@@ -104,11 +108,11 @@ export default function DefaultLandingPage() {
 
     try {
       setBusy(true);
-      const { data: _data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
-      const session = _data?.session;
-      const user = _data?.user;
+      const session = data?.session;
+      const user = data?.user;
       if (!session || !user) {
         setError('No session returned from login.');
         return;
@@ -116,8 +120,9 @@ export default function DefaultLandingPage() {
 
       const accessToken = session.access_token;
 
-      // Check orgs
+      // 1) Check memberships using server endpoint (server uses service role)
       const res = await fetch('/api/user/orgs', {
+        method: 'GET',
         headers: { Authorization: `Bearer ${accessToken}` }
       });
 
@@ -125,7 +130,9 @@ export default function DefaultLandingPage() {
         const json = await res.json();
         const orgs = json?.orgs ?? [];
         if (orgs.length > 0) {
+          // redirect to first org (you can implement org selection UX)
           const firstOrg = orgs[0];
+          // handle different shapes from server
           const id = firstOrg.organizations?.id ?? firstOrg.org_id ?? firstOrg.org?.id;
           if (id) {
             router.push(`/app/org/${id}`);
@@ -134,8 +141,8 @@ export default function DefaultLandingPage() {
         }
       }
 
-      // if the user's metadata says they signed up with an org, call finish-org-signup (if not using webhook)
-      const signupType = (user.user_metadata as any)?.signup_type;
+      // 2) If no orgs, but user.signup_type metadata present, call finish-org-signup
+      const signupType = (user.user_metadata as any)?.signup_type; // user_metadata shape unknown; keep as minimal cast
       const orgNameMetadata = (user.user_metadata as any)?.org_name;
       if (signupType === 'organization' && orgNameMetadata) {
         const finishRes = await fetch('/api/finish-org-signup', {
@@ -154,6 +161,8 @@ export default function DefaultLandingPage() {
             router.push(`/app/org/${org.id}`);
             return;
           }
+        } else {
+          console.warn('finish-org-signup returned', await finishRes.text());
         }
       }
 
@@ -197,13 +206,15 @@ export default function DefaultLandingPage() {
     try {
       setBusy(true);
       const provider = providerNameForButton(providerKey);
+
+      // typed helper for possibly-existing getSessionFromUrl is used in callback page, not here.
       await supabase.auth.signInWithOAuth({
         provider: provider as any,
         options: { redirectTo: `${window.location.origin}/auth/callback` }
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      setError(message ?? 'SSO Failed');
+      setError(message ?? 'SSO failed');
     } finally {
       setBusy(false);
     }
@@ -223,7 +234,9 @@ export default function DefaultLandingPage() {
 
       {/* Hero Section */}
       <section className="relative flex flex-1 items-center justify-center text-center px-6 mt-16">
+        {/* Background Image */}
         <Image src="/jfo.png" alt="Jetflow Background" fill style={{ objectFit: 'contain' }} priority placeholder="blur" blurDataURL="/jfo_blur.png" />
+
         <div className="absolute inset-0 bg-gradient-to-b from-green-300/70 via-green-400/40 to-transparent" />
 
         <div className="relative z-10 max-w-7xl mx-auto transition-all duration-700 ease-out transform">

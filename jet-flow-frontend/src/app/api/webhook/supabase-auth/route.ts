@@ -1,13 +1,12 @@
-// app/api/webhook/supabase-auth/route.ts
+// src/app/api/webhook/supabase-auth/route.ts
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
-const SECRET = process.env.SUPABASE_WEBHOOK_SECRET;
+const SECRET = process.env.SUPABASE_WEBHOOK_SECRET ?? '';
 
 function verify(req: Request) {
-  if (!SECRET) return true; // fallback: no verification (not recommended)
+  if (!SECRET) return true; // fallback (not recommended in prod)
   const header = req.headers.get('x-supabase-signature') ?? '';
-  // simple equality check — you can instead implement HMAC if you set one up.
   return header === SECRET;
 }
 
@@ -16,13 +15,13 @@ export async function POST(req: Request) {
     if (!verify(req)) return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
 
     const body = await req.json();
-    const { type, user } = body as any;
+    const type = (body as any)?.type as string | undefined; // limited use of any here because webhook payload is dynamic
+    const user = (body as any)?.user;
 
     if (type === 'user.created' && user) {
-      // Ensure profile exists
+      // ensure profile exists
       await supabaseAdmin.from('profiles').upsert({ id: user.id });
 
-      // If user was org signup (metadata), create org+membership
       const signupType = user?.user_metadata?.signup_type;
       const orgName = user?.user_metadata?.org_name;
 
@@ -44,10 +43,9 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ ok: true });
-  // new
-    } catch (err: unknown) {
-    console.error('something', err);
+  } catch (err: unknown) {
+    console.error('webhook error', err);
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message ?? 'Server error' }, { status: 500 });
-    }
+  }
 }
