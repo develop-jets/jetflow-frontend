@@ -3,11 +3,11 @@
 
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import FlowLoader from '@/components/loader/FlowLoader';
 import clsx from 'clsx';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import type { Session } from '@supabase/supabase-js';
+import FlowLoader from '../../components/loader/FlowLoader';
 
 type GetSessionFromUrlFn = (opts: { storeSession: boolean }) => Promise<{ data: { session: Session | null } | null; error: unknown }>;
 
@@ -15,10 +15,12 @@ export default function DefaultLandingPage() {
   const router = useRouter();
   const [loaded, setLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  
   // auth states
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [signup_email, set_signup_Email] = useState('');
+  const [signup_password, set_signup_Password] = useState('');
+  const [login_email, set_login_Email] = useState('');
+  const [login_password, set_login_Password] = useState('');
   const [orgName, setOrgName] = useState(''); // inline org name
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -30,6 +32,30 @@ export default function DefaultLandingPage() {
     setLoaded(true);
     return () => clearTimeout(timer);
   }, []);
+  // Redirect if already logged in
+  useEffect(() => {
+    async function checkSession() {
+      const { data } = await supabase.auth.getSession();
+      const session = data?.session;
+      if (session) {
+        // ✅ User already logged in — redirect to app
+        router.push('/app');
+      }
+    }
+
+    checkSession();
+
+    // Also listen for auth state changes (optional)
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        router.push('/app');
+      }
+    });
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, [router]);
 
   if (loading) return <FlowLoader />;
 
@@ -41,7 +67,7 @@ export default function DefaultLandingPage() {
 
   async function handleIndividualSignup() {
     clearMessages();
-    if (!email || !password) {
+    if (!signup_email || !signup_password) {
       setError('Provide email and password to sign up.');
       return;
     }
@@ -50,8 +76,8 @@ export default function DefaultLandingPage() {
 
       // signUp shape for supabase-js v2: single object with options.data
       const { data: _data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
+        email: signup_email,
+        password: signup_password,
         options: { data: { signup_type: 'individual' } }
       });
 
@@ -68,7 +94,7 @@ export default function DefaultLandingPage() {
 
   async function handleOrgSignup() {
     clearMessages();
-    if (!email || !password) {
+    if (!signup_email || !signup_password) {
       setError('Provide email and password to sign up.');
       return;
     }
@@ -82,8 +108,8 @@ export default function DefaultLandingPage() {
       setBusy(true);
 
       const { data: _data, error } = await supabase.auth.signUp({
-        email,
-        password,
+        email: signup_email,
+        password: signup_password,
         options: { data: { signup_type: 'organization', org_name: orgName } }
       });
 
@@ -101,14 +127,14 @@ export default function DefaultLandingPage() {
   async function handleLogin(e?: React.FormEvent) {
     e?.preventDefault();
     clearMessages();
-    if (!email || !password) {
+    if (!login_email || !login_password) {
       setError('Enter email and password.');
       return;
     }
 
     try {
       setBusy(true);
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email: login_email, password: login_password });
       if (error) throw error;
 
       const session = data?.session;
@@ -177,13 +203,13 @@ export default function DefaultLandingPage() {
 
   async function handleForgotPassword() {
     clearMessages();
-    if (!email) {
+    if (!login_email) {
       setError('Enter your email to reset the password.');
       return;
     }
     try {
       setBusy(true);
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(login_email, {
         redirectTo: `${window.location.origin}/auth/reset-password`
       });
       if (error) throw error;
@@ -222,9 +248,14 @@ export default function DefaultLandingPage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-gray-50">
+      {busy && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/70 backdrop-blur-sm">
+          <FlowLoader />
+        </div>
+      )}
       {/* Header */}
       <header className="w-full fixed top-0 left-0 border-b bg-white shadow-sm z-20">
-        <div className="flex items-center px-6 py-4 max-w-7xl mx-auto">
+        <div className="flex items-center px-6 py-4">
           <h1 className="text-2xl font-extrabold tracking-tight text-gray-900">
             <span className="text-green-600">JetFlow</span>
             <span className="text-sky-600">Orchestrator</span>
@@ -246,7 +277,7 @@ export default function DefaultLandingPage() {
           <p className={clsx('mt-4 text-lg text-black transition-all duration-700', fadeInClass)}>
             Build, manage, and orchestrate your workflows seamlessly.
             <br />
-            Powerful, scalable, and developer-friendly.
+            Powerful, scalable, and developer-friendly. No Code. No Hassle.
           </p>
 
           <div className={clsx('mt-12 flex flex-wrap justify-center items-start gap-8', fadeInClass)}>
@@ -257,11 +288,11 @@ export default function DefaultLandingPage() {
 
               <div className="mb-4 align-left">
                 <label className="block text-sm text-left font-bold mb-1 text-gray-700">Email</label>
-                <input type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full h-11 px-3 text-sm text-gray-700 border border-gray-300 rounded-md outline-none" />
+                <input type="email" placeholder="Enter your email" value={signup_email} onChange={(e) => set_signup_Email(e.target.value)} className="w-full h-11 px-3 text-sm text-gray-700 border border-gray-300 rounded-md outline-none" />
               </div>
               <div className="mb-4 align-left">
                 <label className="block text-sm text-left font-bold mb-1 text-gray-700">Password</label>
-                <input type="password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full h-11 px-3 text-sm text-gray-700 border border-gray-300 rounded-md outline-none" />
+                <input type="password" placeholder="Enter your password" value={signup_password} onChange={(e) => set_signup_Password(e.target.value)} className="w-full h-11 px-3 text-sm text-gray-700 border border-gray-300 rounded-md outline-none" />
               </div>
 
               <div className="mb-4">
@@ -276,24 +307,6 @@ export default function DefaultLandingPage() {
               <button className="w-full h-11 mb-4 flex items-center justify-center font-bold text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600" onClick={handleOrgSignup} disabled={busy}>
                 Organization Account
               </button>
-
-              <div className="mt-4">
-                <small>Or sign up with</small>
-                <div className="flex gap-4 mt-2">
-                  <button className="flex items-center justify-center gap-2 w-1/3 h-11 border border-gray-300 rounded-md hover:bg-gray-50" onClick={() => handleSSO('google')} disabled={busy}>
-                    <Image src="/icons/google.svg" alt="google" width={18} height={18} />
-                    <span className="text-sm font-medium text-gray-700">Google</span>
-                  </button>
-                  <button className="flex items-center justify-center gap-2 w-1/3 h-11 border border-gray-300 rounded-md hover:bg-gray-50" onClick={() => handleSSO('microsoft')} disabled={busy}>
-                    <Image src="/icons/microsoft.svg" alt="microsoft" width={18} height={18} />
-                    <span className="text-sm font-medium text-gray-700">Microsoft</span>
-                  </button>
-                  <button className="flex items-center justify-center gap-2 w-1/3 h-11 border border-gray-300 rounded-md hover:bg-gray-50" onClick={() => handleSSO('apple')} disabled={busy}>
-                    <Image src="/icons/apple.svg" alt="apple" width={18} height={18} />
-                    <span className="text-sm font-medium text-gray-700">Apple</span>
-                  </button>
-                </div>
-              </div>
             </div>
 
             {/* Login Card */}
@@ -302,11 +315,11 @@ export default function DefaultLandingPage() {
 
               <div className="mb-4 align-left">
                 <label className="block text-sm text-left font-bold mb-1 text-gray-700">Email</label>
-                <input type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full h-11 px-3 text-sm text-gray-700 border border-gray-300 rounded-md outline-none" />
+                <input type="email" placeholder="Enter your email" value={login_email} onChange={(e) => set_login_Email(e.target.value)} className="w-full h-11 px-3 text-sm text-gray-700 border border-gray-300 rounded-md outline-none" />
               </div>
               <div className="mb-4 align-left">
                 <label className="block text-sm text-left font-bold mb-1 text-gray-700">Password</label>
-                <input type="password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full h-11 px-3 text-sm text-gray-700 border border-gray-300 rounded-md outline-none" />
+                <input type="password" placeholder="Enter your password" value={login_password} onChange={(e) => set_login_Password(e.target.value)} className="w-full h-11 px-3 text-sm text-gray-700 border border-gray-300 rounded-md outline-none" />
               </div>
 
               <div className="mb-4 text-right">
