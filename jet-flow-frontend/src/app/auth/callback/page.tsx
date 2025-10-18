@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import type { Session } from '@supabase/supabase-js';
+import FlowLoader from '@/components/loader/FlowLoader';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
@@ -69,8 +70,13 @@ export default function AuthCallbackPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      Finishing sign-in...
-    </div>
+    <html>
+            <head>
+              <title>Loading...</title>
+            </head>
+            <body>
+                <FlowLoader />
+            </body>
+          </html>
   );
 }
