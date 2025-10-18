@@ -52,9 +52,9 @@ export default function AppHomePage() {
           <title>Loading...</title>
         </head>
         <body>
-          <Layout>
+          {/* <Layout> */}
             <FlowLoader />
-          </Layout>
+          {/* </Layout> */}
         </body>
       </html>
     );
