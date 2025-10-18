@@ -1,38 +1,72 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
+import { BugIcon, CirclePlayIcon, CreditCardIcon, HelpCircle, LayoutDashboardIcon, LogsIcon, Plug, Settings, ShieldCheckIcon, Users, WorkflowIcon } from "lucide-react"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar"
 import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation'
 
 
 // Menu items.
 const items = [
   {
-    title: "Home",
-    url: "#",
-    icon: Home,
+    title: "Dashboard",
+    url: "/app",
+    icon: LayoutDashboardIcon,
   },
   {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
+    title: "Workflows",
+    url: "/ok",
+    icon: WorkflowIcon,
   },
   {
-    title: "Calendar",
+    title: "Executions",
     url: "#",
-    icon: Calendar,
+    icon: CirclePlayIcon,
   },
   {
-    title: "Search",
+    title: "Debugger",
     url: "#",
-    icon: Search,
+    icon: BugIcon,
+  },
+  {
+    title: "Integrations",
+    url: "#",
+    icon: Plug,
+  },
+  {
+    title: "Logs",
+    url: "#",
+    icon: LogsIcon,
+  },
+  {
+    title: "Usage & Billing",
+    url: "#",
+    icon: CreditCardIcon,
+  },
+  {
+    title: "Team Management",
+    url: "#",
+    icon: Users,
   },
   {
     title: "Settings",
     url: "#",
     icon: Settings,
   },
+  {
+    title: "Admin Panel",
+    url: "#",
+    icon: ShieldCheckIcon,
+  },
+  {
+    title: "Help & Onboarding",
+    url: "#",
+    icon: HelpCircle,
+  }
 ]
 
 export function AppSidebar() {
+  const pathname = usePathname();
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -44,10 +78,15 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link
+                      href={item.url}
+                      className={`flex items-center gap-2 px-2 py-2 rounded-md transition-colors duration-200 ${
+                        pathname === item.url ? 'bg-green-400 hover:!bg-green-400' : 'hover:!bg-green-200'
+                      }`}
+                    >
                       <item.icon />
-                      <span>{item.title}</span>
-                    </a>
+                      <span >{item.title}</span>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -56,12 +95,10 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <SidebarGroupLabel>
-          <section className="">
+          <section className="flex justify-center items-center h-50 w-full">
             {/* Background Image */}
-            <Image src="/jfo-logo.png" alt="Jetflow Background" fill style={{ objectFit: 'contain', objectPosition: 'bottom' }} priority placeholder="blur" blurDataURL="/jfo.svg" />
+            <Image src="/jfo-logo.png" alt="Jetflow Background" width={200} height={200} style={{ objectFit: 'contain', objectPosition: 'bottom' }} priority placeholder="blur" blurDataURL="/jfo.svg" />
           </section>
-        </SidebarGroupLabel>
       </SidebarFooter>
     </Sidebar>
   )
