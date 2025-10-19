@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient'; 
-import FlowLoader from '../../components/loader/FlowLoader';
+import FlowLoader from '../../../components/loader/FlowLoader';
 import Layout from '@/components/sidebar/layout';
 import { AppWindowIcon, CircleCheckBig, CirclePlayIcon, IndianRupeeIcon, LogsIcon, PlusIcon, SparklesIcon, Users, WebhookIcon, WorkflowIcon } from 'lucide-react';
 import { Line } from 'react-chartjs-2';
@@ -115,7 +115,9 @@ export default function AppHomePage() {
             <div className="bg-white p-6 rounded-xl border-1 border-gray-200 m-3 flex flex-col justify-between min-h-[150px] h-full">
               <div className='flex justify-between items-center h-10 mb-2'>
                 <div className="text-gray-500 font-small font-semibold">Total Workflows Active</div>
-                <WorkflowIcon className='flex items-center justify-center text-sky-500' />
+                <div className="bg-green-500 rounded-full p-3 flex items-center justify-center">
+                  <span className="text-white text-sm font-semibold">Success</span>
+                </div>
               </div>
               <div className="text-4xl font-bold">2,424</div>
               <div className="text-gray-400 font-small">Running workflows across all projects</div>
