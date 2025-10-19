@@ -1,4 +1,4 @@
-import { BugIcon, CirclePlayIcon, CreditCardIcon, HelpCircle, LayoutDashboardIcon, LogsIcon, Plug, Settings, ShieldCheckIcon, Users, WorkflowIcon } from "lucide-react"
+import { AppWindowIcon, BugIcon, CircleFadingArrowUp, CirclePlayIcon, CreditCardIcon, HelpCircle, LayoutDashboardIcon, LogsIcon, Plug, Settings, ShieldCheckIcon, TerminalIcon, Users, WorkflowIcon } from "lucide-react"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar"
 import Image from 'next/image';
 import Link from 'next/link';
@@ -13,8 +13,13 @@ const items = [
     icon: LayoutDashboardIcon,
   },
   {
+    title: "Applications",
+    url: "/app/applications",
+    icon: AppWindowIcon,
+  },
+  {
     title: "Workflows",
-    url: "/ok",
+    url: "/app/workflows",
     icon: WorkflowIcon,
   },
   {
@@ -31,6 +36,16 @@ const items = [
     title: "Integrations",
     url: "#",
     icon: Plug,
+  },
+  {
+    title: "Deployments",
+    url: "#",
+    icon: CircleFadingArrowUp,
+  },
+  {
+    title: "Terminal",
+    url: "#",
+    icon: TerminalIcon,
   },
   {
     title: "Logs",
