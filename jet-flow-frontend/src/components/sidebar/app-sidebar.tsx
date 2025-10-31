@@ -44,7 +44,7 @@ const items = [
   },
   {
     title: "Terminal",
-    url: "#",
+    url: "/app/terminals",
     icon: TerminalIcon,
   },
   {
