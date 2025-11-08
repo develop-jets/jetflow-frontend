@@ -8,12 +8,8 @@ const TerminalClient = dynamic(() => import("@/components/terminal/TerminalClien
 
 export default function TerminalPage() {
   return (
-    <html>
-        <body>
             <div className="h-screen bg-gray-50 p-4">
                 <TerminalClient /> 
             </div>
-        </body>
-    </html>
   );
 }

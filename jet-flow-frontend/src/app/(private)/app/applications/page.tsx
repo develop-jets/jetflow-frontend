@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient'; 
-import FlowLoader from '../../../components/loader/FlowLoader';
+import FlowLoader from '../../../../components/loader/FlowLoader';
 import Layout from '@/components/sidebar/layout';
 import { PlusIcon } from 'lucide-react';
 
@@ -55,16 +55,7 @@ export default function AppHomePage() {
 
   if (loading) {
     return (
-      <html>
-        <head>
-          <title>Loading...</title>
-        </head>
-        <body>
-          {/* <Layout> */}
             <FlowLoader />
-          {/* </Layout> */}
-        </body>
-      </html>
     );
   }
 

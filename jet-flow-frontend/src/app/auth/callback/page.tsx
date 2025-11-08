@@ -32,7 +32,7 @@ export default function AuthCallbackPage() {
           const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
             if (s?.access_token) {
               sub?.subscription?.unsubscribe?.();
-              router.replace('/app');
+              router.replace('/');
             }
           });
           setTimeout(() => sub?.subscription?.unsubscribe?.(), 2500);
@@ -52,14 +52,14 @@ export default function AuthCallbackPage() {
           if (orgs.length > 0) {
             const id = orgs[0].organizations?.id ?? orgs[0].org_id ?? orgs[0].org?.id;
             if (id) {
-              router.replace(`/app/org/${id}`);
+              router.replace(`/dashboard`);
               return;
             }
           }
         }
 
         // fallback
-        router.replace('/app');
+        router.replace('/dashboard');
       } catch (err) {
         console.error('OAuth callback error', err);
         router.replace('/auth?error=callback');
@@ -69,14 +69,5 @@ export default function AuthCallbackPage() {
     handleCallback();
   }, [router]);
 
-  return (
-    <html>
-            <head>
-              <title>Loading...</title>
-            </head>
-            <body>
-                <FlowLoader />
-            </body>
-          </html>
-  );
+  return (<FlowLoader />);
 }
