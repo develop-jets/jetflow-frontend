@@ -65,10 +65,31 @@ export default function DefaultLandingPage() {
     setError(null);
   }
 
+  // Helper to check if user exists by email using signInWithPassword with dummy password
+  async function checkIfUserExists(email: string): Promise<boolean> {
+    try {
+      const res = await fetch('/api/user/check-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      return data.exists;
+    } catch (err) {
+      console.error('Error checking user existence:', err);
+      return false;
+    }
+  }
+
   async function handleIndividualSignup() {
     clearMessages();
     if (!signup_email || !signup_password) {
       setError('Provide email and password to sign up.');
+      return;
+    }
+    const exists = await checkIfUserExists(signup_email);
+    if (exists) {
+      setError('Email already exists. Please login instead.');
       return;
     }
     try {
@@ -96,6 +117,11 @@ export default function DefaultLandingPage() {
     clearMessages();
     if (!signup_email || !signup_password) {
       setError('Provide email and password to sign up.');
+      return;
+    }
+    const exists = await checkIfUserExists(signup_email);
+    if (exists) {
+      setError('Email already exists. Please login instead.');
       return;
     }
 

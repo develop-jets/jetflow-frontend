@@ -33,6 +33,7 @@ export default function AppHomePage() {
         router.push('/');
       } else {
         setLoading(false);
+        // console.log(data?.session?.access_token);
       }
     }
 

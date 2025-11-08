@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { io } from "socket.io-client";
+
 
 export default function TerminalClient() {
   const terminalRef = useRef<HTMLDivElement | null>(null);
@@ -30,16 +32,32 @@ export default function TerminalClient() {
         if (terminalRef.current) {
         term.open(terminalRef.current);
         fitAddon.fit();
+        // Add padding to terminal DOM
+        const terminalElement = terminalRef.current.querySelector(".xterm-screen") as HTMLElement;
+        if (terminalElement) {
+          terminalElement.style.padding = "10px";
+        }
         }
 
-        term.writeln("Welcome to JetFlow Terminal 👋");
-        term.writeln("Local shell preview (no backend yet)");
-        term.write("$ ");
+        const socket = io("http://localhost:8000", {
+          transports: ["websocket"],
+          query: { token: "jetflow_test_token", app_id: "demo_app" },
+        });
+
+        socket.on("connect", () => {
+          term.writeln("✅ Connected to backend shell");
+        });
+
+        socket.on("output", (data) => {
+          term.write(data);
+        });
 
         term.onData((data) => {
-        if (data.charCodeAt(0) === 13) term.write("\r\n$ ");
-        else term.write(data);
+          socket.emit("input", data);
         });
+
+        term.writeln("Welcome to JetFlow Terminal 👋");
+        term.writeln("Connected to JetFlow backend shell...");
 
         const handleResize = () => fitAddon.fit();
         window.addEventListener("resize", handleResize);
