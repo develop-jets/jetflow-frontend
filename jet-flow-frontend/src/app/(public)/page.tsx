@@ -212,7 +212,7 @@ export default function DefaultLandingPage() {
           const body = await finishRes.json();
           const org = body?.org;
           if (org?.id) {
-            router.push('/dashbaord');
+            router.push('/pending-profile');
             return;
           }
         } else {
