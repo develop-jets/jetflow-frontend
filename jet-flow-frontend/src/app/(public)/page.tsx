@@ -220,7 +220,7 @@ export default function DefaultLandingPage() {
         }
       }
 
-      router.push('/dashboard');
+      router.push('/pending-profile');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setError(message ?? 'Login failed');

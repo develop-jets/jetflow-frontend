@@ -1,5 +1,5 @@
 export function subscribeAppEvents(applicationId: string, onEvent: (data: any) => void) {
-  const ws = new WebSocket("ws://localhost:8000/ws/app-events/");
+  const ws = new WebSocket("ws://backend.developjets.in/ws/app-events/");
 
   ws.onopen = () => {
     console.log("Connected to WebSocket");

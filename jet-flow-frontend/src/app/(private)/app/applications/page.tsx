@@ -83,7 +83,7 @@ export default function ApplicationsPage() {
 
       const token = session.access_token;
 
-      const response = await fetch("http://localhost:8000/api/create-application/", {
+      const response = await fetch("https://backend.developjets.in/api/create-application/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
