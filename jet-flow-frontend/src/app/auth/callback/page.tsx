@@ -52,14 +52,14 @@ export default function AuthCallbackPage() {
           if (orgs.length > 0) {
             const id = orgs[0].organizations?.id ?? orgs[0].org_id ?? orgs[0].org?.id;
             if (id) {
-              router.replace(`/dashboard`);
+              router.replace(`/pending-profile`);
               return;
             }
           }
         }
 
         // fallback
-        router.replace('/dashboard');
+        router.replace('/pending-profile');
       } catch (err) {
         console.error('OAuth callback error', err);
         router.replace('/auth?error=callback');
