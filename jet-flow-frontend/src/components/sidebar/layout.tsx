@@ -1,6 +1,6 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "./app-sidebar"
-import '../../app/(public)/globals.css'
+import '../../app/globals.css'
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 

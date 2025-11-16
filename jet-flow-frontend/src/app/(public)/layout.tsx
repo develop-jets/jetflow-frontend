@@ -1,7 +1,5 @@
-import { ReactNode } from "react";
 
-import "./globals.css"; // adjust path if needed
-
-export default function PublicLayout({ children }: { children: ReactNode }) {
-  return <>{children}</>;
+// src/app/(public)/layout.tsx
+export default function PublicLayout({ children }: { children: React.ReactNode }) {
+  return <div className="public-wrapper">{children}</div>;
 }
