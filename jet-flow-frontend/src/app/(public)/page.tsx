@@ -41,7 +41,7 @@ export default function DefaultLandingPage() {
       const session = data?.session;
       if (session) {
         // ✅ User already logged in — redirect to app
-        router.push('/dashboard');
+        router.push('/pending-profile');
       }
     }
 
@@ -50,7 +50,7 @@ export default function DefaultLandingPage() {
     // Also listen for auth state changes (optional)
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        router.push('/dashboard');
+        router.push('/pending-profile');
       }
     });
 
