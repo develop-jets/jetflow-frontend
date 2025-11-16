@@ -189,7 +189,7 @@ export default function DefaultLandingPage() {
           // handle different shapes from server
           const id = firstOrg.organizations?.id ?? firstOrg.org_id ?? firstOrg.org?.id;
           if (id) {
-            router.push('/dashbaord');
+            router.push('/pending-profile');
             return;
           }
         }
