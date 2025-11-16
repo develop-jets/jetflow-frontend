@@ -18,6 +18,7 @@ import {
   Legend
 } from 'chart.js';
 
+
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 export default function AppHomePage() {
@@ -33,6 +34,7 @@ export default function AppHomePage() {
         router.push('/');
       } else {
         setLoading(false);
+        // console.log(data?.session?.access_token);
       }
     }
 
@@ -47,16 +49,7 @@ export default function AppHomePage() {
 
   if (loading) {
     return (
-      <html>
-        <head>
-          <title>Loading...</title>
-        </head>
-        <body>
-          {/* <Layout> */}
             <FlowLoader />
-          {/* </Layout> */}
-        </body>
-      </html>
     );
   }
 
@@ -100,11 +93,6 @@ export default function AppHomePage() {
   };
 
   return (
-    <html>
-      <head>
-        <title>Dashboard</title>
-      </head>
-      <body>
         <Layout>
           <div className="ml-3">
             <h1 className="text-3xl font-semibold">Welcome, Yash Gaur!</h1>
@@ -115,9 +103,7 @@ export default function AppHomePage() {
             <div className="bg-white p-6 rounded-xl border-1 border-gray-200 m-3 flex flex-col justify-between min-h-[150px] h-full">
               <div className='flex justify-between items-center h-10 mb-2'>
                 <div className="text-gray-500 font-small font-semibold">Total Workflows Active</div>
-                <div className="bg-green-500 rounded-full p-3 flex items-center justify-center">
-                  <span className="text-white text-sm font-semibold">Success</span>
-                </div>
+                <WorkflowIcon className='flex items-center justify-center text-sky-500' />
               </div>
               <div className="text-4xl font-bold">2,424</div>
               <div className="text-gray-400 font-small">Running workflows across all projects</div>
@@ -267,7 +253,5 @@ export default function AppHomePage() {
           </div>
 
         </Layout>
-      </body>
-    </html>
   );
 }

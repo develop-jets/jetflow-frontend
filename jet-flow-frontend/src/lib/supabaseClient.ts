@@ -1,4 +1,4 @@
-// lib/supabaseClient.ts
+// src/lib/supabaseClient.ts
 import { createClient } from '@supabase/supabase-js';
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -11,6 +11,13 @@ if (!url || !anonKey) {
 export const supabase = createClient(url, anonKey, {
   auth: {
     persistSession: true,
-    // detectSessionInUrl: true // optional
+    // detectSessionInUrl: false
   }
 });
+
+export async function handleAuthError(error: any, router: any) {
+  if (error?.message?.includes('Refresh Token Not Found')) {
+    await supabase.auth.signOut();
+    router.push('/');
+  }
+}

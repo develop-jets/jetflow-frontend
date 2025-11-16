@@ -11,6 +11,8 @@ import FlowLoader from '../../components/loader/FlowLoader';
 
 type GetSessionFromUrlFn = (opts: { storeSession: boolean }) => Promise<{ data: { session: Session | null } | null; error: unknown }>;
 
+// Ensure this component does NOT render <html> or <body> tags.
+// This should only render content under <main>.
 export default function DefaultLandingPage() {
   const router = useRouter();
   const [loaded, setLoaded] = useState(false);
@@ -39,7 +41,7 @@ export default function DefaultLandingPage() {
       const session = data?.session;
       if (session) {
         // ✅ User already logged in — redirect to app
-        router.push('/app');
+        router.push('/pending-profile');
       }
     }
 
@@ -48,7 +50,7 @@ export default function DefaultLandingPage() {
     // Also listen for auth state changes (optional)
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        router.push('/app');
+        router.push('/pending-profile');
       }
     });
 
@@ -65,10 +67,31 @@ export default function DefaultLandingPage() {
     setError(null);
   }
 
+  // Helper to check if user exists by email using signInWithPassword with dummy password
+  async function checkIfUserExists(email: string): Promise<boolean> {
+    try {
+      const res = await fetch('/api/user/check-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      return data.exists;
+    } catch (err) {
+      console.error('Error checking user existence:', err);
+      return false;
+    }
+  }
+
   async function handleIndividualSignup() {
     clearMessages();
     if (!signup_email || !signup_password) {
       setError('Provide email and password to sign up.');
+      return;
+    }
+    const exists = await checkIfUserExists(signup_email);
+    if (exists) {
+      setError('Email already exists. Please login instead.');
       return;
     }
     try {
@@ -96,6 +119,11 @@ export default function DefaultLandingPage() {
     clearMessages();
     if (!signup_email || !signup_password) {
       setError('Provide email and password to sign up.');
+      return;
+    }
+    const exists = await checkIfUserExists(signup_email);
+    if (exists) {
+      setError('Email already exists. Please login instead.');
       return;
     }
 
@@ -161,7 +189,7 @@ export default function DefaultLandingPage() {
           // handle different shapes from server
           const id = firstOrg.organizations?.id ?? firstOrg.org_id ?? firstOrg.org?.id;
           if (id) {
-            router.push(`/app/org/${id}`);
+            router.push('/dashbaord');
             return;
           }
         }
@@ -184,7 +212,7 @@ export default function DefaultLandingPage() {
           const body = await finishRes.json();
           const org = body?.org;
           if (org?.id) {
-            router.push(`/app/org/${org.id}`);
+            router.push('/dashbaord');
             return;
           }
         } else {
@@ -192,7 +220,7 @@ export default function DefaultLandingPage() {
         }
       }
 
-      router.push('/app');
+      router.push('/pending-profile');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setError(message ?? 'Login failed');
@@ -246,6 +274,7 @@ export default function DefaultLandingPage() {
     }
   }
 
+  // Do NOT render <html> or <body> here; only render content under <main>.
   return (
     <main className="min-h-screen flex flex-col bg-gray-50">
       {busy && (
